@@ -6,25 +6,11 @@
 	
 	MigrateIfNeeded(newDsName, newKey, sdsName, odsName, forceOverwrite) - Migrates a data store.
 	GetAndMigrateIfNeeded(dsName, key, sdsName, odsName) - Reads data from the migrated data 
-															  store, or migrates data.
+		store, or migrates data.
 --]]
 
 local DataStoreService = game:GetService("DataStoreService")
 local BerezaaMethodDataMigrationTool = {} -- table to represent the BerezaaMethodDataMigrationTool class
-
---[[
-	Helper function to check if a Berezaa data store has been migrated. Return true if it has,
-	false otherwise.
-	------------------------------------------------
-
-	dsName: The name of the data store data may have been migrated to.
-	key: The key to check.
---]]
-function isMigrated(dsName, key)
-	local migratedDS = DataStoreService:GetDataStore(dsName)
-	local data = migratedDS:GetAsync(key)
-	return data ~= nil
-end
 
 --[[
 	Migrates key data from Berezaa Data Stores to a Standard Data Store with the given name.
@@ -48,14 +34,17 @@ end
 --]]
 function BerezaaMethodDataMigrationTool:MigrateIfNeeded(newDsName, newKey, sdsName, odsName, forceOverwrite)
 	-- check if the data has already been migrated. If it has, return.
-	if not forceOverwrite and isMigrated(newDsName, newKey) then
-		return
+	local migratedDS = DataStoreService:GetDataStore(newDsName)
+	if not forceOverwrite then
+		local migratedData = migratedDS:GetAsync(newKey)
+		if migratedData ~= nil then
+			return
+		end
 	end
 
 	odsName = odsName or sdsName
 	local berezaaSDS = DataStoreService:GetDataStore(sdsName)
 	local berezaaODS = DataStoreService:GetOrderedDataStore(odsName)
-	local newDS = DataStoreService:GetDataStore(newDsName)
 
 	-- retrieve the latest version from the ODS
 	local latestVersion = berezaaODS:GetSortedAsync(false, 1):GetCurrentPage()[1]
@@ -66,7 +55,7 @@ function BerezaaMethodDataMigrationTool:MigrateIfNeeded(newDsName, newKey, sdsNa
 		local data = berezaaSDS:GetAsync(version)
 
 		-- move this data into the new SDS
-		newDS:SetAsync(newKey, data)
+		migratedDS:SetAsync(newKey, data)
 	end
 end
 
@@ -87,11 +76,11 @@ end
 	    	 omit this field or pass a duplicate string as the parameter.
 --]]
 function BerezaaMethodDataMigrationTool:GetAndMigrateIfNeeded(dsName, key, sdsName, odsName)
+	-- check if the data has already been migrated. If it has, return the value.
 	local migratedDS = DataStoreService:GetDataStore(dsName)
-
-	-- check if the data has already been migrated. If it has, get the value.
-	if isMigrated(dsName, key) then
-		return migratedDS:GetAsync(key)
+	local data = migratedDS:GetAsync(key)
+	if data ~= nil then
+		return data
 	end
 
 	odsName = odsName or sdsName
