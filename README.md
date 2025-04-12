@@ -2,11 +2,13 @@
 ## General Info
 This module provides functions you can use to migrate data stored using the “Berezaa Method” to a single key in a Standard Data Store. This module will only migrate live players' data as it changes.
 
+**Note:** A “Berezaa Method Data Store” represents a pair of data stores: a Standard Data Store and an Ordered Data Store. In the Berezaa Method, they collectively represent a single data value for a single player.
+
 ## Guide
 Migration using these tools requires a few steps:
 
 1. Install the BerezaaMethodDataMigrationTool.
-2. Determine to what key and what data store you want each Berezaa Data Store to be migrated to.
+2. Determine to what key and what data store you want each Berezaa Method Data Store to be migrated to.
 3. Replace all “Gets” via Berezaa Method with `BerezaaMethodDataMigrationTool:GetAndMigrateIfNeeded()`.
 4. Replace all “Sets” via Berezaa Method with `[Migrated Data Store]:[Set / Update / Increment]Async()`.
 
@@ -41,45 +43,42 @@ end)
 A second function, `MigrateIfNeeded()` is provided as well for migrating keys at an as-needs basis.
 
 ## API
-### `BerezaaMethodDataMigrationTool:GetAndMigrateIfNeeded(dsName, key, sdsName, odsName)`
+### `BerezaaMethodDataMigrationTool:GetAndMigrateIfNeeded(migratedDataStoreName, key, berezaaMethodStandardDataStoreName, berezaaMethodOrderedDataStoreName)`
 
-### Description
-Reads data from the migrated data store. I fthe data has not yet been migrated, it performs the migration and then returns he data.
+#### Description
+Reads data from the migrated data store. If the data has not yet been migrated, it migrates the data from the Berezaa Method Data Store and then returns the data.
 
-**Note**: do not use the same newDsName for different Berezaa-style Data Stores; otherwise, the migrated data will be overwritten
+**Note**: do not use the same `migratedDataStoreName` for different Berezaa Method Data Stores; otherwise, the migrated data will be overwritten
 
-### Parameters 
-`dsName`: The name the data store the user would like to read data from and/or migrate data to. 
+#### Parameters 
+Parameter | Description
+:--- | :---
+`migratedDataStoreName`: _string_ | The name of the data store that contains migrated data. The key will be read from this data store. If it does not exist, it will be read from the Berezaa Method Data Store and then migrated to this data store.
+`key`: _string_ | The name of the key to retrieve (if using in Berezaa's style, this will likely be the player id).
+`berezaaMethodStandardDataStoreName`: _string_ | The name of the Berezaa Method standard data store used to store data. This likely includes the player name/id inside it, e.g. [player id]_inventory.
+`berezaaMethodOrderedDataStoreName`: _string_ | The name of the Berezaa Method ordered data store used to store versions. It is possible this is the same as the berezaaMethodStandardDataStoreName, in which case omit this field or pass a duplicate string as the parameter.
 
-`key`: The name of the key we should migrate or retrieve data from (if using in Berezaa's style, this will likely be the player id) 
+#### Returns
+`Variant`: The value stored in the migrated or Berezaa Method Data Stores.
 
-`sdsName`: The name of the standard data store used to store data. This likely includes the player name/id inside it, e.g. [player id]_inventory. 
-
-`odsName`: The name of the ordered data store used to store versions. It is possible this is the same as the sdsName, in which case omit this field or pass a duplicate string as the parameter. 
-
-### Returns
-`Variant`: The value stored in the migrated or Berezaa Data Stores.
-
-`Nil`: If no data was found in the migrated or Berezaa Data Stores.
+`Nil`: If no data was found in the migrated or Berezaa Method Data Stores.
 
  
 
-### `BerezaaMethodDataMigrationTool:MigrateIfNeeded(newDsName, newKey, sdsName, odsName, forceOverwrite)` 
+### `BerezaaMethodDataMigrationTool:MigrateIfNeeded(migratedDataStoreName, key, berezaaMethodStandardDataStoreName, berezaaMethodOrderedDataStoreName, forceOverwrite)` 
 #### Description
 Migrates player data from one Berezaa Data Store to a standard data store with the given name. If the data has already been migrated, it will exit the function. 
 
-**Note**: do not use the same newDsName for different Berezaa-style Data Stores; otherwise, the migrated data will be overwritten
+**Note**: do not use the same `migratedDataStoreName` for different Berezaa Method Data Stores; otherwise, the migrated data will be overwritten
 
-### Parameters 
-`newDsName`: The name the data store the user would like to migrate data to. 
+#### Parameters 
+Parameter | Description
+:--- | :---
+`migratedDataStoreName`: _string_ | The name of the data store that contains migrated data. If the key does not exist, it will be read from the Berezaa Method Data Store and then migrated to this data store
+`key`: _string_ | The name of the key we should migrate (if using in Berezaa's style, this will likely be the player id).
+`berezaaMethodStandardDataStoreName`: _string_ | The name of the Berezaa Method standard data store used to store data. This likely includes the player name/id inside it, e.g. [player id]_inventory.
+`berezaaMethodOrderedDataStoreName`: _string_ | The name of the Berezaa Method ordered data store used to store versions. It is possible this is the same as the berezaaMethodStandardDataStoreName, in which case omit this field or pass a duplicate string as the parameter.
+`forceOverwrite`: _bool_ | A bool that determines if you want to write the data from the Berezaa Method Data Store to the migrated data store, even if data already exists in the migrated data store.
 
-`newKey`: The name of the key we should migrate the data to (if using in Berezaa's style, this will likely be the player id) 
-
-`sdsName`: The name of the standard data store used to store data. This likely includes the player name/id inside it, e.g. [player id]_inventory. 
-
-`odsName`: The name of the ordered data store used to store versions. It is possible this is the same as the sdsName, in which case omit this field or pass a duplicate string as the parameter. 
-
-`forceOverwrite`: A bool that determines if you want to write the data even if the data has already been migrated
-
-### Returns
+#### Returns
 `Nil`
