@@ -4,6 +4,9 @@ This module provides functions you can use to migrate data stored using the “B
 
 **Note:** A “Berezaa Method Data Store” represents a pair of data stores: a Standard Data Store and an Ordered Data Store. In the Berezaa Method, they collectively represent a single data value for a single player.
 
+![image](https://github.com/user-attachments/assets/4f01cc21-2dc2-4624-95ea-356913489a55)
+
+
 ## Guide
 Migration using these tools requires a few steps:
 
