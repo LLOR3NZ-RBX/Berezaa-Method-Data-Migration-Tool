@@ -15,7 +15,7 @@ Migration using these tools requires a few steps:
 3. Replace all “Gets” via Berezaa Method with `BerezaaMethodDataMigrationTool:GetAndMigrateIfNeeded()`.
 4. Replace all “Sets” via Berezaa Method with `[Migrated Data Store]:[Set / Update / Increment]Async()`.
 
-Below is an example of how an experience may use the module.
+Below is an example of how an experience may use the module. The example 
 
 ```
 -- BEFORE
@@ -24,9 +24,10 @@ ReplicatedStorage.BuyProduct.OnServerEvent:connect(function(player, productName)
     local productPrice = Products[productName].price
     local migratedDsName = "coins"
     local migratedDs = DataStoreService:GetDataStore(migratedDsName)
-    if GetBerezaa("coins/" .. player.UserId) >= productPrice then
+    local numCoins = GetBerezaa("coins/" .. player.UserId)
+    if numCoins >= productPrice then
         print("Buying product", productName)
-        IncrementBerezaa("coins/ .. player.UserId, -productPrice)
+        <Insert Berezaa Method Function to Set>("coins/ .. player.UserId, numCoins - productPrice)
     end
 end)
 
@@ -36,14 +37,15 @@ ReplicatedStorage.BuyProduct.OnServerEvent:connect(function(player, productName)
     local productPrice = Products[productName].price
     local migratedDsName = "coins"
     local migratedDs = DataStoreService:GetDataStore(migratedDsName)
-    if BerezaaMethodDataMigrationTool:GetAndMigrateIfNeeded(migratedDsName, player.UserId, "coins/" .. player.UserId) >= productPrice then
+    local numCoins = BerezaaMethodDataMigrationTool:GetAndMigrateIfNeeded(migratedDsName, player.UserId, "coins/" .. player.UserId) -- gets data and migrates it
+    if  numCoins >= productPrice then
         print("Buying product", productName)
-        migratedDs:IncrementAsync(player.UserId, -productPrice)
+        migratedDs:SetAsync(player.UserId, numCoins - productPrice)
     end
 end)
 ```
 
-A second function, `MigrateIfNeeded()` is provided as well for migrating keys at an as-needs basis.
+A second function, `MigrateIfNeeded()` is provided as well for migrating keys at an as-needs basis. This should only be used for migrating individual keys, or for reverting back to the version stored in the Berezaa Method Data Store.
 
 ## API
 ### `BerezaaMethodDataMigrationTool:GetAndMigrateIfNeeded(migratedDataStoreName, key, berezaaMethodStandardDataStoreName, berezaaMethodOrderedDataStoreName)`
@@ -51,7 +53,7 @@ A second function, `MigrateIfNeeded()` is provided as well for migrating keys at
 #### Description
 Reads data from the migrated data store. If the data has not yet been migrated, it migrates the data from the Berezaa Method Data Store and then returns the data.
 
-**Note**: do not use the same `migratedDataStoreName` for different Berezaa Method Data Stores; otherwise, the migrated data will be overwritten
+**Note**: do not use the same `migratedDataStoreName` and `key` for different Berezaa Method Data Stores; otherwise, the migrated data will be overwritten
 
 #### Parameters 
 Parameter | Description
@@ -72,7 +74,7 @@ Parameter | Description
 #### Description
 Migrates player data from one Berezaa Data Store to a standard data store with the given name. If the data has already been migrated, it will exit the function. 
 
-**Note**: do not use the same `migratedDataStoreName` for different Berezaa Method Data Stores; otherwise, the migrated data will be overwritten
+**Note**: do not use the same `migratedDataStoreName` and `key` for different Berezaa Method Data Stores; otherwise, the migrated data will be overwritten
 
 #### Parameters 
 Parameter | Description
