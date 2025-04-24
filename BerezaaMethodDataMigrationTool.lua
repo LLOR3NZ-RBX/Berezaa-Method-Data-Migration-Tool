@@ -17,7 +17,7 @@ local BerezaaMethodDataMigrationTool = {} -- table to represent the BerezaaMetho
 	Reads data from the migrated data store. If the data has not yet been migrated, 
 	it migrates the data from the Berezaa Method Data Store and then returns the data.
 	
-	Note: do not use the same migratedDataStoreName for different Berezaa Method Data Stores; 
+	Note: do not use the same migratedDataStoreName and key for different Berezaa Method Data Stores; 
 		otherwise, the migrated data will be overwritten
 	-------------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ end
 	Migrates player data from one Berezaa Data Store to a standard data store with the given name. 
 	If the data has already been migrated, it will exit the function.
 	
-	Note: do not use the same migratedDataStoreName for different Berezaa Method Data Stores; 
+	Note: do not use the same migratedDataStoreName and key for different Berezaa Method Data Stores; 
 		otherwise, the migrated data will be overwritten
 	---------------------------------------------------------------------------------------
 	
