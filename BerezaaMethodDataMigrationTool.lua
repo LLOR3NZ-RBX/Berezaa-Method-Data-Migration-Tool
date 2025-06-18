@@ -57,7 +57,7 @@ function BerezaaMethodDataMigrationTool:GetAndMigrateIfNeeded(migratedDataStoreN
 				return existingData
 			end
 			return data
-		end).
+		end)
 		return data
 	end
 
