@@ -52,7 +52,12 @@ function BerezaaMethodDataMigrationTool:GetAndMigrateIfNeeded(migratedDataStoreN
 		local data = berezaaSDS:GetAsync(version)
 
 		-- move this data into the new SDS and return
-		migratedDS:SetAsync(key, data)
+		data = migratedDS:UpdateAsync(key, function(existingData)
+			if existingData then
+				return existingData
+			end
+			return data
+		end)
 		return data
 	end
 
@@ -103,7 +108,12 @@ function BerezaaMethodDataMigrationTool:MigrateIfNeeded(migratedDataStoreName, k
 		local data = berezaaSDS:GetAsync(version)
 
 		-- move this data into the new SDS
-		migratedDS:SetAsync(key, data)
+		migratedDS:UpdateAsync(key, function(existingData)
+			if existingData then
+				return existingData
+			end
+			return data
+		end)
 	end
 end
 
